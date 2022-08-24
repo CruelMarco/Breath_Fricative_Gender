@@ -226,15 +226,19 @@ y_pred_fold_1 = classifier.predict(setx_1_test)
 
 score_fold_1_test=fold1_fit.score(setx_1_test, sety_1_test)
 
+score_fold_1_train = fold1_fit.score(setx_1_train, sety_1_train)
 
 ###########Fold 2################
-
 
 fold2_fit = classifier.fit(setx_2_train, sety_2_train)
 
 y_pred_fold_2 = classifier.predict(setx_2_test)
 
 score_fold_2_test = fold2_fit.score(setx_2_test, sety_2_test)
+
+score_fold_2_train = fold2_fit.score(setx_2_train, sety_2_train)
+
+
 
 #accuracies2 = cross_val_score(estimator = classifier2, X = setx_2_train, y = sety_2_train, cv = None)
 
@@ -246,6 +250,7 @@ y_pred_fold_3 = classifier.predict(setx_2_test)
 
 score_fold_3_test = fold3_fit.score(setx_3_test, sety_3_test)
 
+score_fold_3_train = fold3_fit.score(setx_3_train, sety_3_train)
 
 ###########Fold 4################
 
@@ -254,6 +259,8 @@ fold4_fit = classifier.fit(setx_4_train, sety_4_train)
 y_pred_fold_4 = classifier.predict(setx_4_test)
 
 score_fold_4_test = fold4_fit.score(setx_4_test, sety_4_test)
+
+score_fold_4_train = fold4_fit.score(setx_4_train, sety_4_train)
 
 
 ###########Fold 5################
@@ -264,6 +271,8 @@ y_pred_fold_5 = classifier.predict(setx_5_test)
 
 score_fold_5_test = fold5_fit.score(setx_5_test, sety_5_test)
 
+score_fold_5_train = fold5_fit.score(setx_5_train, sety_5_train)
+
 print("Test Score is = " , (score_fold_1_test+score_fold_2_test+score_fold_3_test+score_fold_4_test+score_fold_5_test)/5)
 
-#print("Train Score is = " , (score_fold_1_train+score_fold_2_train+score_fold_3_train+score_fold_4_train+score_fold_5_train)/5)
+print("Train Score is = " , (score_fold_1_train+score_fold_2_train+score_fold_3_train+score_fold_4_train+score_fold_5_train)/5)
