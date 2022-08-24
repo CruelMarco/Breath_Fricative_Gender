@@ -34,7 +34,15 @@ from scipy import stats
 from operator import itemgetter
 from sklearn.model_selection import train_test_split
 from sklearn import datasets
-from sklearn import svm
+from sklearn import svm, linear_model, neighbors, naive_bayes, ensemble, discriminant_analysis, gaussian_process
+from xgboost import XGBClassifier
+from sklearn import metrics
+from sklearn.preprocessing import StandardScaler
+import random
+import warnings
+warnings.filterwarnings('ignore')
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
 
 dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_sets'
 
@@ -204,25 +212,47 @@ sety_4_test= trainy_4
 
 sety_5_test= trainy_5
 
+#############Fold 1##############
+
 clf_1 = svm.SVC(kernel='linear', C=1).fit(setx_1_train, sety_1_train)
 
-score_fold_1=clf_1.score(setx_1_test, sety_1_test)
+score_fold_1_test=clf_1.score(setx_1_test, sety_1_test)
+
+score_fold_1_train = clf_1.score(setx_1_train, sety_1_train)
+
+###########Fold 2################
 
 clf_2 = svm.SVC(kernel='linear', C=1).fit(setx_2_train, sety_2_train)
 
-score_fold_2=clf_2.score(setx_2_test, sety_2_test)
+score_fold_2_test=clf_2.score(setx_2_test, sety_2_test)
+
+score_fold_2_train = clf_1.score(setx_2_train, sety_2_train)
+
+###########Fold 3################
 
 clf_3 = svm.SVC(kernel='linear', C=1).fit(setx_3_train, sety_3_train)
 
-score_fold_3=clf_3.score(setx_3_test, sety_3_test)
+score_fold_3_test=clf_3.score(setx_3_test, sety_3_test)
+
+score_fold_3_train = clf_1.score(setx_3_train, sety_3_train)
+
+###########Fold 4################
 
 clf_4 = svm.SVC(kernel='linear', C=1).fit(setx_4_train, sety_4_train)
 
-score_fold_4=clf_4.score(setx_4_test, sety_4_test)
+score_fold_4_test=clf_4.score(setx_4_test, sety_4_test)
+
+score_fold_4_train = clf_1.score(setx_4_train, sety_4_train)
+
+###########Fold 5################
 
 clf_5 = svm.SVC(kernel='linear', C=1).fit(setx_5_train, sety_5_train)
 
-score_fold_5=clf_5.score(setx_5_test, sety_5_test)
+score_fold_5_test=clf_5.score(setx_5_test, sety_5_test)
 
-print((score_fold_1+score_fold_2+score_fold_3+score_fold_4+score_fold_5)/5)
-    #print(set)
+score_fold_5_train = clf_1.score(setx_5_train, sety_5_train)
+
+print("Test Score is = " , (score_fold_1_test+score_fold_2_test+score_fold_3_test+score_fold_4_test+score_fold_5_test)/5)
+
+print("Train Score is = " , (score_fold_1_train+score_fold_2_train+score_fold_3_train+score_fold_4_train+score_fold_5_train)/5)
+    
