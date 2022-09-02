@@ -202,11 +202,11 @@ for j in tqdm(wav_files) :
     
     mfcc_stat_df['Gender'] = gender
     
-    mfcc_stat_df_name = j[0 : -4] + '_stats' + '.csv'
+    # mfcc_stat_df_name = j[0 : -4] + '_stats' + '.csv'
     
-    mfcc_df_dir = os.path.join(mfcc_stat_store_dir , mfcc_stat_df_name)
+    # mfcc_df_dir = os.path.join(mfcc_stat_store_dir , mfcc_stat_df_name)
     
-    mfcc_stat_df.to_csv(mfcc_df_dir)
+    # mfcc_stat_df.to_csv(mfcc_df_dir)
     
 print("No. of Male controls = " , male_count)
 
