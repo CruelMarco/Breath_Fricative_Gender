@@ -35,9 +35,11 @@ from operator import itemgetter
 
 #os.chdir('C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data')
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/no_wheeze'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/test_recs'
 
-mfcc_store_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/Test_mfcc'
+os.chdir(dir)
+
+mfcc_store_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_d_dd'
 
 files = os.listdir(dir)
 
@@ -96,15 +98,31 @@ for j in tqdm(wav_files) :
     
     sub_mfcc_df = []
     
+    #print(j)
+    
     for i in range(len(wheeze_st_sam)) :
         
         wheeze_chunk = audio_file[int(wheeze_st_sam[i]) : int(wheeze_end_sam[i])]
+        
+        mfcc = librosa.feature.mfcc(wheeze_chunk , sr = fs , n_mfcc = 13 , n_fft = 320 , win_length = 320 , hop_length = 160)
                 
         wheeze_chunk_mfcc_df = np.array(np.transpose(librosa.feature.mfcc(wheeze_chunk , sr = fs , n_mfcc = 13 , n_fft = 320 , win_length = 320 , hop_length = 160)))
         
+        delta = np.array(np.transpose(librosa.feature.delta(mfcc)))
+        
+        delta_chunk_mfcc_df = pd.DataFrame(delta , columns = ['F0_d' , 'F1_d' , 'F2_d' , 'F3_d' , 'F4_d' , 'F5_d' , 'F6_d' , 'F7_d' , 'F8_d' , 'F9_d' , 'F10_d' , 'F11_d' , 'F12_d'])
+
+        delta2 = np.array(np.transpose(librosa.feature.delta(mfcc, order=2)))
+        
+        delta2_chunk_mfcc_df = pd.DataFrame(delta2 , columns = ['F0_dd' , 'F1_dd' , 'F2_dd' , 'F3_dd' , 'F4_dd' , 'F5_dd' , 'F6_dd' , 'F7_dd' , 'F8_dd' , 'F9_dd' , 'F10_dd' , 'F11_dd' , 'F12_dd'])
+        
         wheeze_chunk_mfcc_df = pd.DataFrame(wheeze_chunk_mfcc_df , columns = ['F0' , 'F1' , 'F2' , 'F3' , 'F4' , 'F5' , 'F6' , 'F7' , 'F8' , 'F9' , 'F10' , 'F11' , 'F12'])
         
-        sub_mfcc_df.append(wheeze_chunk_mfcc_df)
+        mfcc_delta_delta2 = pd.concat([wheeze_chunk_mfcc_df, delta_chunk_mfcc_df, delta2_chunk_mfcc_df],axis=1, join='inner')
+        
+        #print(len(wheeze_chunk_mfcc_df))
+        
+        sub_mfcc_df.append(mfcc_delta_delta2)
         
     sub_mfcc_df = pd.concat(sub_mfcc_df)
      
@@ -121,11 +139,3 @@ for j in tqdm(wav_files) :
 print("No. of Male controls = " , male_count)
 
 print("No. of Female controls = " , female_count)
-        
-        
-    
-    
-    
-    
-
-
