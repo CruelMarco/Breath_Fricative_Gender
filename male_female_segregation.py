@@ -33,9 +33,9 @@ import math
 from scipy import stats
 from operator import itemgetter
 
-mfcc_stat_store_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/mfcc_stats_csv'
+mfcc_stat_store_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_d_dd'
 
-male_file_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control males'
+male_file_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/control_males'
 
 os.chdir(mfcc_stat_store_dir)
 

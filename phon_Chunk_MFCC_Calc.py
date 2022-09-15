@@ -35,7 +35,7 @@ from operator import itemgetter
 
 #os.chdir('C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data')
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/test_recs'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_phonation_recording'
 
 os.chdir(dir)
 

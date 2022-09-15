@@ -33,7 +33,7 @@ import math
 from scipy import stats
 from operator import itemgetter
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_d_ddC'
 
 os.chdir(dir)
 
@@ -65,5 +65,5 @@ male_sets = chunkIt(male_files, 5)
 
 female_sets = chunkIt(female_files,5)
 
-for i in male_sets:
+
     

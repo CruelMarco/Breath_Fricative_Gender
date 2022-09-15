@@ -47,7 +47,7 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 #from sklearn import 
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_sets'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_d_dd_sets'
 
 os.chdir(dir)
 
