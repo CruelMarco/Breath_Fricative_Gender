@@ -45,13 +45,15 @@ from numpy import loadtxt
 import xgboost
 from keras.models import Model,Sequential
 from keras import optimizers
-from keras.layers import Input,Conv1D,BatchNormalization,MaxPooling1D,LSTM,Dense,Activation,Layer
+from keras.layers import Input,Conv1D,BatchNormalization,MaxPooling1D,LSTM,Dense,Activation,Layer, Flatten
 #from emodata1d import load_data
 from keras.utils import to_categorical
 import keras.backend as K
 import argparse
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
+from sklearn import preprocessing
+import tensorflow as tf
 #from keras.models import load_model
 
 dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_d_dd_sets'
@@ -64,7 +66,6 @@ set_path_arr = []
 
 for i in sets:
   set_path = os.path.join(dir,i)
-  print(set_path)
   set_path_arr.append(set_path)
 
 set1_path = set_path_arr[0]
@@ -87,10 +88,15 @@ set5_files_path = [os.path.join(set5_path,j) for j in set5_files]
 
 set1_mfcc = []
 set1_mfcc_df = []
+
+label_encoder = preprocessing.LabelEncoder()
+
 for j in set1_files_path:
   set1 = pd.read_csv(j,sep = ",")
   set1_mfcc.append(set1)
   set1_mfcc_df = pd.concat(set1_mfcc)
+
+set1_mfcc_df["Gender"] = label_encoder.fit_transform(set1_mfcc_df["Gender"])
   
 set2_mfcc = []
 set2_mfcc_df = []
@@ -98,6 +104,7 @@ for j in set2_files_path:
   set2 = pd.read_csv(j,sep = ",")
   set2_mfcc.append(set2)
   set2_mfcc_df = pd.concat(set2_mfcc)
+set2_mfcc_df["Gender"] = label_encoder.fit_transform(set2_mfcc_df["Gender"])
   
 set3_mfcc = []
 set3_mfcc_df = []
@@ -105,6 +112,7 @@ for j in set3_files_path:
   set3 = pd.read_csv(j,sep = ",")
   set3_mfcc.append(set3)
   set3_mfcc_df = pd.concat(set3_mfcc)
+set3_mfcc_df["Gender"] = label_encoder.fit_transform(set3_mfcc_df["Gender"])
   
 set4_mfcc = []
 set4_mfcc_df = []
@@ -112,6 +120,7 @@ for j in set4_files_path:
   set4 = pd.read_csv(j,sep = ",")
   set4_mfcc.append(set4)
   set4_mfcc_df = pd.concat(set4_mfcc)
+set4_mfcc_df["Gender"] = label_encoder.fit_transform(set4_mfcc_df["Gender"])
   
 set5_mfcc = []
 set5_mfcc_df = []
@@ -119,6 +128,9 @@ for j in set5_files_path:
   set5 = pd.read_csv(j,sep = ",")
   set5_mfcc.append(set5)
   set5_mfcc_df = pd.concat(set5_mfcc)
+set5_mfcc_df["Gender"] = label_encoder.fit_transform(set5_mfcc_df["Gender"])
+  
+#label_encoder = preprocessing.LabelEncoder()
   
 trainx_1 = set1_mfcc_df.loc[:, set1_mfcc_df.columns.drop(['Name','Gender', 'Unnamed: 0'])]
 
@@ -149,6 +161,69 @@ setx_3_train= pd.concat([trainx_1,trainx_2,trainx_4,trainx_5])
 setx_4_train= pd.concat([trainx_1,trainx_2,trainx_3,trainx_5])
 
 setx_5_train= pd.concat([trainx_1,trainx_2,trainx_3,trainx_4])
+
+setx_1_test= trainx_1
+
+setx_2_test= trainx_2
+
+setx_3_test= trainx_3
+
+setx_4_test= trainx_4
+
+setx_5_test= trainx_5
+
+
+sety_1_train= pd.concat([trainy_2,trainy_3,trainy_4,trainy_5])
+
+sety_2_train= pd.concat([trainy_1,trainy_3,trainy_4,trainy_5])
+
+sety_3_train= pd.concat([trainy_1,trainy_2,trainy_4,trainy_5])
+
+sety_4_train= pd.concat([trainy_1,trainy_2,trainy_3,trainy_5])
+
+sety_5_train= pd.concat([trainy_1,trainy_2,trainy_3,trainy_4])
+
+sety_1_test= trainy_1
+
+sety_2_test= trainy_2
+
+sety_3_test= trainy_3
+
+sety_4_test= trainy_4
+
+sety_5_test= trainy_5
+
+
+
+setx_1_train_1 = np.array(setx_1_train)
+
+setx_1_train_1 = setx_1_train_1.reshape(setx_1_train_1.shape[0], setx_1_train_1.shape[1],1)
+
+sety_1_train_1 = np.array(sety_1_train)
+
+#sety_1_train_1 = sety_1_train_1.reshape(sety_1_train_1.shape[0], sety_1_train_1.shape[1],1)
+
+series_input = (setx_1_train.shape[1],1,)
+
+
+
+#################   Model ###########
+
+model = Sequential()
+model.add(Conv1D(filters = 16 ,kernel_size = 3,strides=1,padding='same', input_shape = (setx_1_train_1.shape[1], 1 ) , activation="relu"))
+model.add(MaxPooling1D())
+
+#model.add(Dropout(0.2))
+#model.add(BatchNormalization())
+#model.add(Activation('elu'))
+#model.add(LSTM(64, return_sequences=False))
+
+model.add(Flatten())
+
+model.add(Dense(1 ,activation='sigmoid'))
+#opt = optimizers.Adam(learning_rate=0.01)	
+model.compile(loss='binary_crossentropy', optimizer = 'adam' , metrics=['accuracy'])
+model.fit(setx_1_train_1,sety_1_train_1,batch_size = 64, epochs = 10 )
 
 # #########CNN LSTM Model##########
 
