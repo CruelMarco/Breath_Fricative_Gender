@@ -10,26 +10,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import soundfile as sf
 from tqdm import tqdm
-import os
-from scipy.io.wavfile import write
 import scipy.signal
-from spectrum import aryule
-from pylab import plot, axis, xlabel, ylabel, grid, log10
-import scipy.signal
-from nara_wpe.wpe import wpe
-from nara_wpe.wpe import get_power
-from nara_wpe.utils import stft, istft, get_stft_center_frequencies
-from nara_wpe import project_root
 import os
 import librosa
 import pandas as pd
 from pandas import DataFrame as df
 import glob, os
-import shutil
 import json
 import sklearn
-import shutil
-import math
 from scipy import stats
 from operator import itemgetter
 from sklearn.model_selection import train_test_split
@@ -40,18 +28,23 @@ from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
-from sklearn.model_selection import cross_val_score
+from sklearn.metrics import accuracy_score
 from numpy import loadtxt
-import xgboost
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
+import xgboost as xgb
+from sklearn import preprocessing
+###### For Hyperparameter tuning ########
+from hyperopt import STATUS_OK, Trials, fmin, hp, tpe
+
+
 #from sklearn import 
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_d_dd_sets'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/100_consecutive_random_chunk_mfcc_stat/sets'
 
 os.chdir(dir)
 
 sets = os.listdir(dir)
+
+label_encoder = preprocessing.LabelEncoder()
 
 set_path = []
 
@@ -82,15 +75,15 @@ for z in range (len(set_path)):
         
         list_of_path.append(filepath)
         
-set1=list(filter(lambda k: 'Set1' in k, list_of_path))
+set1=list(filter(lambda k: 'set1' in k, list_of_path))
 
-set2=list(filter(lambda k: 'Set2' in k, list_of_path))
+set2=list(filter(lambda k: 'set2' in k, list_of_path))
 
-set3=list(filter(lambda k: 'Set3' in k, list_of_path))
+set3=list(filter(lambda k: 'set3' in k, list_of_path))
 
-set4=list(filter(lambda k: 'Set4' in k, list_of_path))
+set4=list(filter(lambda k: 'set4' in k, list_of_path))
 
-set5=list(filter(lambda k: 'Set5' in k, list_of_path))
+set5=list(filter(lambda k: 'set5' in k, list_of_path))
 
 value1=[]
 
@@ -156,23 +149,31 @@ trainx_1 = mfcc1.loc[:, mfcc1.columns.drop(['Name','Gender'])]
 
 trainy_1 = mfcc1.loc[:, mfcc1.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
 
+trainy_1["Gender"] = label_encoder.fit_transform(trainy_1["Gender"])
+
 trainx_2 = mfcc2.loc[:, mfcc2.columns.drop(['Name','Gender'])]
 
 trainy_2 = mfcc2.loc[:, mfcc2.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
+
+trainy_2["Gender"] = label_encoder.fit_transform(trainy_2["Gender"])
 
 trainx_3 = mfcc3.loc[:, mfcc3.columns.drop(['Name','Gender'])]
 
 trainy_3 = mfcc3.loc[:, mfcc3.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
 
+trainy_3["Gender"] = label_encoder.fit_transform(trainy_3["Gender"])
+
 trainx_4 = mfcc4.loc[:, mfcc4.columns.drop(['Name','Gender'])]
 
 trainy_4 = mfcc4.loc[:, mfcc4.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
+
+trainy_4["Gender"] = label_encoder.fit_transform(trainy_4["Gender"])
 
 trainx_5 = mfcc5.loc[:, mfcc5.columns.drop(['Name','Gender'])]
 
 trainy_5 = mfcc5.loc[:, mfcc5.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
 
-
+trainy_5["Gender"] = label_encoder.fit_transform(trainy_5["Gender"])
 
 
 setx_1_train= pd.concat([trainx_2,trainx_3,trainx_4,trainx_5])
@@ -215,10 +216,57 @@ sety_4_test= trainy_4
 
 sety_5_test= trainy_5
 
+
+############# Model Fitting ###########
+
+
+
+space={'max_depth': hp.quniform("max_depth", 3, 18, 1),
+        'gamma': hp.uniform ('gamma', 1,9),
+        'reg_alpha' : hp.quniform('reg_alpha', 40,180,1),
+        'reg_lambda' : hp.uniform('reg_lambda', 0,1),
+        'colsample_bytree' : hp.uniform('colsample_bytree', 0.5,1),
+        'min_child_weight' : hp.quniform('min_child_weight', 0, 10, 1),
+        'n_estimators': 180,
+        'seed': 0
+    }
+
+
+
+
 classifier = XGBClassifier()
 
 #############Fold 1##############
+def objective(space):
+    clf=xgb.XGBClassifier(
+                    n_estimators =space['n_estimators'], max_depth = int(space['max_depth']), gamma = space['gamma'],
+                    reg_alpha = int(space['reg_alpha']),min_child_weight=int(space['min_child_weight']),
+                    colsample_bytree=int(space['colsample_bytree']))
+    
+    evaluation = [( setx_1_train, sety_1_train), ( setx_1_test, sety_1_test)]
+    
+    clf.fit(setx_1_train, sety_1_train,
+            eval_set=evaluation, eval_metric="auc",
+            early_stopping_rounds=10,verbose=False)
+    
 
+    pred = clf.predict(setx_1_test)
+    accuracy = accuracy_score(sety_1_test, pred>0.5)
+    print ("SCORE:", accuracy)
+    return {'loss': -accuracy, 'status': STATUS_OK }
+
+
+
+trials = Trials()
+
+best_hyperparams = fmin(fn = objective,
+                        space = space,
+                        algo = tpe.suggest,
+                        max_evals = 100,
+                        trials = trials)
+
+
+classifier = XGBClassifier(params = best_hyperparams)
 
 fold1_fit = classifier.fit(setx_1_train, sety_1_train)
 

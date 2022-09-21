@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 23 02:39:29 2022
+Created on Tue Sep 20 16:33:24 2022
 
 @author: Spirelab
 """
@@ -34,15 +34,19 @@ from scipy import stats
 from operator import itemgetter
 from sklearn.model_selection import train_test_split
 from sklearn import datasets
-from sklearn import svm, linear_model, neighbors, naive_bayes, ensemble, discriminant_analysis, gaussian_process
+from sklearn import svm
+from numpy import loadtxt
 from xgboost import XGBClassifier
-from sklearn import metrics
-from sklearn.preprocessing import StandardScaler
-import random
-import warnings
-warnings.filterwarnings('ignore')
-from sklearn.metrics import roc_curve
-from sklearn.metrics import roc_auc_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from xgboost import XGBClassifier
+from sklearn.model_selection import cross_val_score
+from numpy import loadtxt
+import xgboost
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+#from sklearn import 
 
 dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/100_consecutive_random_chunk_mfcc_stat/sets'
 
@@ -212,47 +216,64 @@ sety_4_test= trainy_4
 
 sety_5_test= trainy_5
 
+classifier = RandomForestClassifier(n_estimators=100)
+
 #############Fold 1##############
 
-clf_1 = svm.SVC(kernel='linear', C=1).fit(setx_1_train, sety_1_train)
 
-score_fold_1_test=clf_1.score(setx_1_test, sety_1_test)
+fold1_fit = classifier.fit(setx_1_train, sety_1_train.values.ravel())
 
-score_fold_1_train = clf_1.score(setx_1_train, sety_1_train)
+y_pred_fold_1 = classifier.predict(setx_1_test)
+
+score_fold_1_test=fold1_fit.score(setx_1_test, sety_1_test)
+
+score_fold_1_train = fold1_fit.score(setx_1_train, sety_1_train)
 
 ###########Fold 2################
 
-clf_2 = svm.SVC(kernel='linear', C=1).fit(setx_2_train, sety_2_train)
+fold2_fit = classifier.fit(setx_2_train, sety_2_train.values.ravel())
 
-score_fold_2_test=clf_2.score(setx_2_test, sety_2_test)
+y_pred_fold_2 = classifier.predict(setx_2_test)
 
-score_fold_2_train = clf_1.score(setx_2_train, sety_2_train)
+score_fold_2_test = fold2_fit.score(setx_2_test, sety_2_test)
+
+score_fold_2_train = fold2_fit.score(setx_2_train, sety_2_train)
+
+
+
+#accuracies2 = cross_val_score(estimator = classifier2, X = setx_2_train, y = sety_2_train, cv = None)
 
 ###########Fold 3################
 
-clf_3 = svm.SVC(kernel='linear', C=1).fit(setx_3_train, sety_3_train)
+fold3_fit = classifier.fit(setx_3_train, sety_3_train.values.ravel())
 
-score_fold_3_test=clf_3.score(setx_3_test, sety_3_test)
+y_pred_fold_3 = classifier.predict(setx_2_test)
 
-score_fold_3_train = clf_1.score(setx_3_train, sety_3_train)
+score_fold_3_test = fold3_fit.score(setx_3_test, sety_3_test)
+
+score_fold_3_train = fold3_fit.score(setx_3_train, sety_3_train)
 
 ###########Fold 4################
 
-clf_4 = svm.SVC(kernel='linear', C=1).fit(setx_4_train, sety_4_train)
+fold4_fit = classifier.fit(setx_4_train, sety_4_train.values.ravel())
 
-score_fold_4_test=clf_4.score(setx_4_test, sety_4_test)
+y_pred_fold_4 = classifier.predict(setx_4_test)
 
-score_fold_4_train = clf_1.score(setx_4_train, sety_4_train)
+score_fold_4_test = fold4_fit.score(setx_4_test, sety_4_test)
+
+score_fold_4_train = fold4_fit.score(setx_4_train, sety_4_train)
+
 
 ###########Fold 5################
 
-clf_5 = svm.SVC(kernel='linear', C=1).fit(setx_5_train, sety_5_train)
+fold5_fit = classifier.fit(setx_5_train, sety_5_train.values.ravel())
 
-score_fold_5_test=clf_5.score(setx_5_test, sety_5_test)
+y_pred_fold_5 = classifier.predict(setx_5_test)
 
-score_fold_5_train = clf_1.score(setx_5_train, sety_5_train)
+score_fold_5_test = fold5_fit.score(setx_5_test, sety_5_test)
+
+score_fold_5_train = fold5_fit.score(setx_5_train, sety_5_train)
 
 print("Test Score is = " , (score_fold_1_test+score_fold_2_test+score_fold_3_test+score_fold_4_test+score_fold_5_test)/5)
 
 print("Train Score is = " , (score_fold_1_train+score_fold_2_train+score_fold_3_train+score_fold_4_train+score_fold_5_train)/5)
-    
