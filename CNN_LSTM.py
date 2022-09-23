@@ -8,28 +8,16 @@ Created on Mon Sep 12 15:42:49 2022
 import IPython
 import matplotlib.pyplot as plt
 import numpy as np
-import soundfile as sf
 from tqdm import tqdm
 import os
 from scipy.io.wavfile import write
 import scipy.signal
-from spectrum import aryule
-from pylab import plot, axis, xlabel, ylabel, grid, log10
-import scipy.signal
-from nara_wpe.wpe import wpe
-from nara_wpe.wpe import get_power
-from nara_wpe.utils import stft, istft, get_stft_center_frequencies
-from nara_wpe import project_root
-import os
 import librosa
 import pandas as pd
 from pandas import DataFrame as df
-import glob, os
-import shutil
 import json
 import sklearn
 import shutil
-import math
 from scipy import stats
 from operator import itemgetter
 from sklearn.model_selection import train_test_split
@@ -46,7 +34,6 @@ import xgboost
 from keras.models import Model,Sequential
 from keras import optimizers
 from keras.layers import Input,Conv1D,BatchNormalization,MaxPooling1D,LSTM,Dense,Activation,Layer, Flatten
-#from emodata1d import load_data
 from keras.utils import to_categorical
 import keras.backend as K
 import argparse
@@ -54,6 +41,7 @@ from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
 from sklearn import preprocessing
 import tensorflow as tf
+from sklearn.metrics import classification_report, confusion_matrix
 #from keras.models import load_model
 
 dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_d_dd_sets'
@@ -193,7 +181,7 @@ sety_4_test= trainy_4
 
 sety_5_test= trainy_5
 
-
+#################   Model   Fold 1  Preprocessing  ###########
 
 setx_1_train_1 = np.array(setx_1_train)
 
@@ -205,155 +193,75 @@ sety_1_train_1 = np.array(sety_1_train)
 
 series_input = (setx_1_train.shape[1],1,)
 
-
-
-#################   Model ###########
+#################   Model    ###########
 
 model = Sequential()
 model.add(Conv1D(filters = 16 ,kernel_size = 3,strides=1,padding='same', input_shape = (setx_1_train_1.shape[1], 1 ) , activation="relu"))
 model.add(MaxPooling1D())
-
-#model.add(Dropout(0.2))
-#model.add(BatchNormalization())
-#model.add(Activation('elu'))
-#model.add(LSTM(64, return_sequences=False))
-
+model.add(BatchNormalization())
+model.add(LSTM(100, input_shape = (setx_1_train_1.shape[1] ,1  ), return_sequences=True))
 model.add(Flatten())
-
 model.add(Dense(1 ,activation='sigmoid'))
-#opt = optimizers.Adam(learning_rate=0.01)	
 model.compile(loss='binary_crossentropy', optimizer = 'adam' , metrics=['accuracy'])
-model.fit(setx_1_train_1,sety_1_train_1,batch_size = 64, epochs = 10 )
 
-# #########CNN LSTM Model##########
+################ Fit Fold 1 ##########################
 
-# model = Sequential(name = "Gender_CNN_LSTM")
+model.fit(setx_1_train_1,sety_1_train_1,batch_size = 128, epochs = 10 )
 
-# model.add(Conv1D(filters = 64, kernel_size = (3), strides = 1 , padding = "same" , data_format = "channels_last",
-#                   activation="relu" ))
+predictions_fold1 = (model.predict(setx_1_test) > 0.5).astype("int32")
 
-# model.add()
- 
+#################   Model   Fold 2  Preprocessing  ###########
 
-#value1=[]
+setx_2_train_1 = np.array(setx_2_train)
 
-# for n in range (len(set1)):
-    
-#     table1=pd.read_csv(set1[n],index_col=0)
-    
-#     value1.append(table1)
+setx_2_train_1 = setx_2_train_1.reshape(setx_2_train_1.shape[0], setx_2_train_1.shape[1],1)
 
-# value2=[]
+sety_2_train_1 = np.array(sety_2_train)
 
-# for n in range (len(set2)):
-    
-#     table2=pd.read_csv(set2[n],index_col=0)
-    
-#     value2.append(table2)
+################ Fit Fold 2 #########################
 
-# value3=[]
+model.fit(setx_2_train_1,sety_2_train_1,batch_size = 128, epochs = 10 )
 
-# for n in range (len(set3)):
-    
-#     table3=pd.read_csv(set3[n],index_col=0)
-    
-#     value3.append(table3)
+predictions_fold2 = (model.predict(setx_2_test) > 0.5).astype("int32")
 
-# value4=[]
+#################   Model   Fold 3  Preprocessing  ###########
 
-# for n in range (len(set4)):
-    
-#     table4=pd.read_csv(set4[n],index_col=0)
-    
-#     value4.append(table4)
+setx_3_train_1 = np.array(setx_3_train)
 
-# value5=[]
+setx_3_train_1 = setx_3_train_1.reshape(setx_3_train_1.shape[0], setx_3_train_1.shape[1],1)
 
-# for n in range (len(set5)):
-    
-#     table5=pd.read_csv(set5[n],index_col=0)
-    
-#     value5.append(table5)
+sety_3_train_1 = np.array(sety_3_train)
 
-# mfcc1=pd.concat(value1)
+################ Fit Fold 3 #########################
 
-# mfcc2=pd.concat(value2)
+model.fit(setx_3_train_1,sety_3_train_1,batch_size = 128, epochs = 10 )
 
-# mfcc3=pd.concat(value3)
+predictions_fold3 = (model.predict(setx_3_test) > 0.5).astype("int32")
 
-# mfcc4=pd.concat(value4)
+#################   Model   Fold 4  Preprocessing  ###########
 
-# mfcc5=pd.concat(value5)
+setx_4_train_1 = np.array(setx_4_train)
 
-# mfcc1=mfcc1.sample(frac=1)
+setx_4_train_1 = setx_4_train_1.reshape(setx_4_train_1.shape[0], setx_4_train_1.shape[1],1)
 
-# mfcc2=mfcc2.sample(frac=1)
+sety_4_train_1 = np.array(sety_4_train)
 
-# mfcc3=mfcc3.sample(frac=1)
+################ Fit Fold 4 #########################
 
-# mfcc4=mfcc4.sample(frac=1)
+model.fit(setx_4_train_1,sety_4_train_1,batch_size = 128, epochs = 10 )
 
-# mfcc5=mfcc5.sample(frac=1)
+predictions_fold4 = (model.predict(setx_4_test) > 0.5).astype("int32")
 
-# trainx_1 = mfcc1.loc[:, mfcc1.columns.drop(['Name','Gender'])]
+#################   Model   Fold 5  Preprocessing  ###########
 
-# trainy_1 = mfcc1.loc[:, mfcc1.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
+setx_5_train_1 = np.array(setx_5_train)
 
-# trainx_2 = mfcc2.loc[:, mfcc2.columns.drop(['Name','Gender'])]
+setx_5_train_1 = setx_5_train_1.reshape(setx_5_train_1.shape[0], setx_5_train_1.shape[1],1)
 
-# trainy_2 = mfcc2.loc[:, mfcc2.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
+sety_5_train_1 = np.array(sety_5_train)
 
-# trainx_3 = mfcc3.loc[:, mfcc3.columns.drop(['Name','Gender'])]
+################ Fit Fold 5 #########################
 
-# trainy_3 = mfcc3.loc[:, mfcc3.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
+model.fit(setx_5_train_1,sety_5_train_1,batch_size = 128, epochs = 10 )
 
-# trainx_4 = mfcc4.loc[:, mfcc4.columns.drop(['Name','Gender'])]
-
-# trainy_4 = mfcc4.loc[:, mfcc4.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
-
-# trainx_5 = mfcc5.loc[:, mfcc5.columns.drop(['Name','Gender'])]
-
-# trainy_5 = mfcc5.loc[:, mfcc5.columns.drop(['Name','F0_mean','F1_mean','F2_mean','F3_mean','F4_mean','F5_mean','F6_mean','F7_mean','F8_mean','F9_mean','F10_mean','F11_mean','F12_mean','F0_median','F1_median','F2_median','F3_median','F4_median','F5_median','F6_median','F7_median','F8_median','F9_median','F10_median','F11_median','F12_median','F0_mode','F1_mode','F2_mode','F3_mode','F4_mode','F5_mode','F6_mode','F7_mode','F8_mode','F9_mode','F10_mode','F11_mode','F12_mode','F0_std','F1_std','F2_std','F3_std','F4_std','F5_std','F6_std','F7_std','F8_std','F9_std','F10_std','F11_std','F12_std'])]
-
-
-
-
-# setx_1_train= pd.concat([trainx_2,trainx_3,trainx_4,trainx_5])
-
-# setx_2_train= pd.concat([trainx_1,trainx_3,trainx_4,trainx_5])
-
-# setx_3_train= pd.concat([trainx_1,trainx_2,trainx_4,trainx_5])
-
-# setx_4_train= pd.concat([trainx_1,trainx_2,trainx_3,trainx_5])
-
-# setx_5_train= pd.concat([trainx_1,trainx_2,trainx_3,trainx_4])
-
-# setx_1_test= trainx_1
-
-# setx_2_test= trainx_2
-
-# setx_3_test= trainx_3
-
-# setx_4_test= trainx_4
-
-# setx_5_test= trainx_5
-
-# sety_1_train= pd.concat([trainy_2,trainy_3,trainy_4,trainy_5])
-
-# sety_2_train= pd.concat([trainy_1,trainy_3,trainy_4,trainy_5])
-
-# sety_3_train= pd.concat([trainy_1,trainy_2,trainy_4,trainy_5])
-
-# sety_4_train= pd.concat([trainy_1,trainy_2,trainy_3,trainy_5])
-
-# sety_5_train= pd.concat([trainy_1,trainy_2,trainy_3,trainy_4])
-
-# sety_1_test= trainy_1
-
-# sety_2_test= trainy_2
-
-# sety_3_test= trainy_3
-
-# sety_4_test= trainy_4
-
-# sety_5_test= trainy_5
+predictions_fold5 = (model.predict(setx_5_test) > 0.5).astype("int32")
