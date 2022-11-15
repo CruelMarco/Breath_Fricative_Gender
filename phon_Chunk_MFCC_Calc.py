@@ -35,11 +35,11 @@ from operator import itemgetter
 
 #os.chdir('C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data')
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_phonation_recording'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/test_recs'
 
 os.chdir(dir)
 
-mfcc_store_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_d_dd'
+mfcc_store_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/test'
 
 files = os.listdir(dir)
 
@@ -50,14 +50,25 @@ txt_files = [f for f in files if f.endswith(".txt")]
 male_count = 0
 
 female_count = 0
+
+d_columns = ['F0_d' , 'F1_d' , 'F2_d' , 'F3_d' , 'F4_d' , 'F5_d' , 'F6_d' , 'F7_d' , 'F8_d' , 'F9_d' , 
+             'F10_d' ,'F11_d' , 'F12_d', 'F13_d', 'F14_d', 'F15_d', 'F16_d', 'F17_d', 'F18_d', 'F19_d', 'F20_d', 
+             'F21_d', 'F22_d', 'F23_d', 'F24_d', 'F25_d', 'F26_d', 'F27_d', 'F28_d', 'F29_d', 'F30_d', 
+             'F31_d', 'F32_d', 'F33_d', 'F34_d', 'F35_d', 'F36_d', 'F37_d', 'F38_d']
     
+dd_columns = [j + 'd' for j in d_columns]
+
+mfcc_columns = [j.split('_')[0] for j in d_columns]
+
+
+
 ############# MFCC Calculation ###############
 
 for j in tqdm(wav_files) :
     
     audio_path = os.path.join(dir, j)
     
-    audio_file, fs = librosa.load(audio_path, sr = 16000, mono = True)
+    audio_file, fs = librosa.load(audio_path, sr = 44000, mono = True)
     
     annot_path = audio_path[0 : -3] + 'txt'
     
@@ -98,25 +109,30 @@ for j in tqdm(wav_files) :
     
     sub_mfcc_df = []
     
+
+    
+    
+    
+
     #print(j)
     
     for i in range(len(wheeze_st_sam)) :
         
         wheeze_chunk = audio_file[int(wheeze_st_sam[i]) : int(wheeze_end_sam[i])]
         
-        mfcc = librosa.feature.mfcc(wheeze_chunk , sr = fs , n_mfcc = 13 , n_fft = 320 , win_length = 320 , hop_length = 160)
+        mfcc = librosa.feature.mfcc(wheeze_chunk , sr = fs , n_mfcc = 39 , n_fft = 320 , win_length = 320 , hop_length = 160)
                 
-        wheeze_chunk_mfcc_df = np.array(np.transpose(librosa.feature.mfcc(wheeze_chunk , sr = fs , n_mfcc = 13 , n_fft = 320 , win_length = 320 , hop_length = 160)))
+        wheeze_chunk_mfcc_df = np.array(np.transpose(librosa.feature.mfcc(wheeze_chunk , sr = fs , n_mfcc = 39 , n_fft = 320 , win_length = 320 , hop_length = 160)))
         
         delta = np.array(np.transpose(librosa.feature.delta(mfcc)))
         
-        delta_chunk_mfcc_df = pd.DataFrame(delta , columns = ['F0_d' , 'F1_d' , 'F2_d' , 'F3_d' , 'F4_d' , 'F5_d' , 'F6_d' , 'F7_d' , 'F8_d' , 'F9_d' , 'F10_d' , 'F11_d' , 'F12_d'])
+        delta_chunk_mfcc_df = pd.DataFrame(delta , columns = d_columns)
 
         delta2 = np.array(np.transpose(librosa.feature.delta(mfcc, order=2)))
         
-        delta2_chunk_mfcc_df = pd.DataFrame(delta2 , columns = ['F0_dd' , 'F1_dd' , 'F2_dd' , 'F3_dd' , 'F4_dd' , 'F5_dd' , 'F6_dd' , 'F7_dd' , 'F8_dd' , 'F9_dd' , 'F10_dd' , 'F11_dd' , 'F12_dd'])
+        delta2_chunk_mfcc_df = pd.DataFrame(delta2 , columns = dd_columns)
         
-        wheeze_chunk_mfcc_df = pd.DataFrame(wheeze_chunk_mfcc_df , columns = ['F0' , 'F1' , 'F2' , 'F3' , 'F4' , 'F5' , 'F6' , 'F7' , 'F8' , 'F9' , 'F10' , 'F11' , 'F12'])
+        wheeze_chunk_mfcc_df = pd.DataFrame(wheeze_chunk_mfcc_df , columns = mfcc_columns)
         
         mfcc_delta_delta2 = pd.concat([wheeze_chunk_mfcc_df, delta_chunk_mfcc_df, delta2_chunk_mfcc_df],axis=1, join='inner')
         
@@ -130,7 +146,7 @@ for j in tqdm(wav_files) :
     
     sub_mfcc_df['Gender'] = gender
     
-    mfcc_df_name = j[0 : -4] + '.csv'
+    mfcc_df_name = j[0 : -4] + '_d_dd_39' + '.csv'
     
     mfcc_df_dir = os.path.join(mfcc_store_dir , mfcc_df_name)
     

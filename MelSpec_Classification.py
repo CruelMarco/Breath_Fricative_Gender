@@ -54,9 +54,9 @@ import librosa.display
 from IPython.display import Audio
 import pyaudio  
 import wave
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/test_recs'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/no_wheeze'
 
-test_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/100_random_chunk_mfcc_stat'
+test_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/Spectrogram_imgs'
 
 os.chdir(dir)
 
@@ -79,7 +79,7 @@ for j in wav_files :
     
     audio_path = os.path.join(dir, j)
     
-    audio_file, fs = librosa.load(audio_path, sr = None, mono = True)
+    audio_file, fs = librosa.load(audio_path, sr = 48000, mono = True)
     
     annot_path = audio_path[0 : -3] + 'txt'
     
@@ -128,35 +128,48 @@ for j in wav_files :
         
         print(len(wheeze_chunk))
         
-        #complete_wheeze = np.array(complete_wheeze)
-        
         S = librosa.feature.melspectrogram(wheeze_chunk, sr=fs, n_mels=128, win_length = 960,
 
                                     hop_length = 480, fmax=8000)
-        S = mel_spect = librosa.power_to_db(S, ref=np.max)
+        S = librosa.power_to_db(S, ref=np.max)
+                                 
+        fig = plt.figure(figsize=[2.5,2.5])
         
-        # D = librosa.stft(wheeze_chunk, hop_length=160, win_length=320)  # STFT of y
-        # S_db = librosa.amplitude_to_db(np.abs(D), ref=np.max)
+        ax = fig.add_subplot(111)
         
-        #fig, ax = plt.subplots(nrows=2)
+        ax.axes.get_xaxis().set_visible(False)
         
-        fig, ax = plt.subplots() 
+        ax.axes.get_yaxis().set_visible(False)
+        
+        ax.set_frame_on(False)
+        
+        img = librosa.display.specshow(S, x_axis='time', y_axis='mel', hop_length=480,sr = fs, fmax = fs/2, ax=ax)
+        
+        filename  = test_dir + '/' + j[:-4] + '_' + str(i) + '.jpg'
+        
+        plt.savefig(filename, dpi=400, bbox_inches='tight',pad_inches=0)
+        # plt.close()    
+        # fig.clf()
+        # plt.close(fig)
+        # plt.close('all')               
+        
+        
 
         #mel_spect_dB = librosa.power_to_db(mel_spect, ref=np.max)
         
         #librosa.display.waveplot(wheeze_chunk, sr=fs, ax=ax[0])
 
-        img = librosa.display.specshow(S, x_axis='time',
+        #img = librosa.display.specshow(S, x_axis='time',
 
-                                       y_axis='mel', sr=fs, hop_length= 480,
+                                       # y_axis='mel', sr=fs, hop_length= 160,
 
-                                         fmax=8000, ax=ax)
+                                       #   fmax=8000, ax=ax)
         
-        ax.set(title='Linear spectrogram')
-        fig.colorbar(img, ax=ax, format="%+2.f dB")
-        fig.tight_layout()
+        # ax.set(title='Linear spectrogram')
+        # fig.colorbar(img, ax=ax, format="%+2.f dB")
+        # fig.tight_layout()
 
-        plt.show()
+        # plt.show()
 
 
 #mel_spect = librosa.feature.melspectrogram(audio_file, sr = 16000, n_mels = 256, 

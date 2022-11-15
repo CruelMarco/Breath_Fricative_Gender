@@ -56,9 +56,9 @@ from sklearn import preprocessing
 import tensorflow as tf
 import random
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_only'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/test'
 
-test_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/100_Chunk_mfcc_stat'
+test_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/3_Sec_Random_N_frames'
 
 os.chdir(dir)
 
@@ -66,6 +66,33 @@ mfcc_files = os.listdir(dir)
 
 mfcc_file_path = [dir + '/' + j for j in mfcc_files]
 
+annot_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_phonation_recording'
+
+txt_files = [i for i in os.listdir(annot_dir) if i.endswith(".txt") ]
+
+cols =  ["name" , "wheeze_count"]
+
+lst = []
+
+for x in txt_files :
+    
+    annot_path = os.path.join(annot_dir, x)
+    
+    #print(annot_path)
+    
+    annot_file = pd.read_csv(annot_path , sep = "\t", names = ['start', 'end', 'phon'] , header = None)
+    
+    name = x.split("_")[5]
+    
+    phon_col = annot_file["phon"]
+    
+    wheeze_idx = [j for j in range(len(phon_col)) if "Wheeze" in phon_col[j]]
+    
+    wheeze_count = len(wheeze_idx)
+    
+    lst.append([name , wheeze_count])
+    
+    wheeze_count_df = pd.DataFrame(lst, columns = cols )
 
 for i in mfcc_file_path:
     
@@ -93,8 +120,12 @@ for i in mfcc_file_path:
     
     sub_mfcc_df_std = []
     
+    length_loc = list(wheeze_count_df[wheeze_count_df['name'] ==name]['wheeze_count'])
     
-    for k in range(10): 
+    length_loc = length_loc[0]
+    
+    
+    for k in range(length_loc): 
     
         ran_idx = random.sample(range(1, len(mfcc_df)),100)
         
@@ -138,7 +169,7 @@ for i in mfcc_file_path:
         
         sub_mfcc_df_std.append(wheeze_chunk_mfcc_df_std)
     
-    df_idx = [str(x) for x in range(10)]    
+    df_idx = [str(x) for x in range(length_loc)]    
     
     sub_mfcc_df = pd.concat(sub_mfcc_df)
     

@@ -33,9 +33,9 @@ import math
 from scipy import stats
 from operator import itemgetter
 
-mfcc_stat_store_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/100_consecutive_random_chunk_mfcc_stat_1'
+mfcc_stat_store_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/spectrogram/folds/fold5/test_set/class_a'
 
-male_file_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/100_conse_random_males'
+male_file_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/spectrogram/folds/fold5/test_set/class_b'
 
 os.chdir(mfcc_stat_store_dir)
 
@@ -81,5 +81,5 @@ print(male_file_count)
     
     
 
-#
+
 

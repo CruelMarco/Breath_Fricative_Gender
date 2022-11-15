@@ -44,7 +44,7 @@ warnings.filterwarnings('ignore')
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/100_consecutive_random_chunk_mfcc_stat/sets'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/3_sec_chunk_equal_wheezeCount_stat'
 
 os.chdir(dir)
 

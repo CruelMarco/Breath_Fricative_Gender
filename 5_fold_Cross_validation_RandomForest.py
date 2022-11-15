@@ -48,7 +48,7 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 #from sklearn import 
 
-dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/100_consecutive_random_chunk_mfcc_stat/sets'
+dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/3_sec_chunk_equal_wheezeCount_stat'
 
 os.chdir(dir)
 

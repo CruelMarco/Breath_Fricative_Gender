@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Sep 20 17:20:47 2022
+Created on Thu Sep 22 14:53:53 2022
 
 @author: Spirelab
 """
@@ -8,57 +8,30 @@ Created on Tue Sep 20 17:20:47 2022
 import IPython
 import matplotlib.pyplot as plt
 import numpy as np
-import soundfile as sf
 from tqdm import tqdm
-import os
-from scipy.io.wavfile import write
-import scipy.signal
-from spectrum import aryule
 from pylab import plot, axis, xlabel, ylabel, grid, log10
 import scipy.signal
-from nara_wpe.wpe import wpe
-from nara_wpe.wpe import get_power
-from nara_wpe.utils import stft, istft, get_stft_center_frequencies
-from nara_wpe import project_root
 import os
-import librosa
 import pandas as pd
 from pandas import DataFrame as df
-import glob, os
-import shutil
-import json
 import sklearn
-import shutil
 import math
 from scipy import stats
-from operator import itemgetter
 from sklearn.model_selection import train_test_split
 from sklearn import datasets
-from sklearn import svm
-from numpy import loadtxt
+from sklearn import svm, linear_model, neighbors, naive_bayes, ensemble, discriminant_analysis, gaussian_process
 from xgboost import XGBClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from xgboost import XGBClassifier
-from sklearn.model_selection import cross_val_score
-from numpy import loadtxt
-import xgboost
-from keras.models import Model,Sequential
-from keras import optimizers
-from keras.layers import Input,Conv1D,BatchNormalization,MaxPooling1D,LSTM,Dense,Activation,Layer, Flatten
-#from emodata1d import load_data
-from keras.utils import to_categorical
-import keras.backend as K
-import argparse
-from keras.callbacks import EarlyStopping
-from keras.callbacks import ModelCheckpoint
-from sklearn import preprocessing
-import tensorflow as tf
+from sklearn import metrics
+from sklearn.preprocessing import StandardScaler
 import random
+import warnings
+warnings.filterwarnings('ignore')
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
 
 dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/mfcc_only'
 
-test_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/5_sec_chunk_equal_wheezeCount'
+test_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_mfcc/5_sec_chunk_mfcc_stat'
 
 os.chdir(dir)
 
@@ -66,47 +39,8 @@ mfcc_files = os.listdir(dir)
 
 mfcc_file_path = [dir + '/' + j for j in mfcc_files]
 
-annot_dir = 'C:/Users/Spirelab/Desktop/Breath_gender/Shivani_data/control_phonation_recording'
 
-txt_files = [i for i in os.listdir(annot_dir) if i.endswith(".txt") ]
-
-cols =  ["name" , "wheeze_count"]
-
-lst = []
-
-for x in txt_files :
-    
-    annot_path = os.path.join(annot_dir, x)
-    
-    #print(annot_path)
-    
-    annot_file = pd.read_csv(annot_path , sep = "\t", names = ['start', 'end', 'phon'] , header = None)
-    
-    name = x.split("_")[5]
-    
-    phon_col = annot_file["phon"]
-    
-    wheeze_idx = [j for j in range(len(phon_col)) if "Wheeze" in phon_col[j]]
-    
-    wheeze_count = len(wheeze_idx)
-    
-    lst.append([name , wheeze_count])
-    
-    wheeze_count_df = pd.DataFrame(lst, columns = cols )
-    
-#print(wheeze_count_df)
-
-
-
-for i in tqdm(mfcc_file_path):
-    
-    file_name = i.split("/")[8]
-    
-    name = file_name.split("_")[5]
-    
-    gender = file_name.split("_")[8]
-    
-    #print(mfcc_file_name)
+for i in mfcc_file_path:
     
     mfcc_df = pd.read_csv(i)
     
@@ -118,7 +52,7 @@ for i in tqdm(mfcc_file_path):
     
     wheeze_chunk_mfcc_df_mean = []
     
-    sub_mfcc_df_mean = []
+    sub_mfcc_df_mean = [] 
     
     wheeze_chunk_mfcc_df_median = []
     
@@ -132,23 +66,12 @@ for i in tqdm(mfcc_file_path):
     
     sub_mfcc_df_std = []
     
-    length_loc = list(wheeze_count_df[wheeze_count_df['name'] ==name]['wheeze_count'])
-    
-    length_loc = length_loc[0]
+    ran_st_idx = random.sample(range(1, len(mfcc_df)-200),10)
     
     
-    for k in range(length_loc): 
-        
-        #print(k)
+    for k in range(10): 
     
-        ran_st_idx = random.sample(range(1, len(mfcc_df)-500), length_loc)
-        
-        ran_idx = list(range(ran_st_idx[k],ran_st_idx[k]+500))
-        
-        #ran_idx_w_300 = random.sample(ran_idx, 10)
-        
-        #print(ran_idx_w_300)
-        
+        ran_idx = list(range(ran_st_idx[k],ran_st_idx[k]+250))
         
         ran_mfcc_df = mfcc_df.loc[ran_idx]
         
@@ -190,7 +113,7 @@ for i in tqdm(mfcc_file_path):
         
         sub_mfcc_df_std.append(wheeze_chunk_mfcc_df_std)
     
-    df_idx = [str(x) for x in range(length_loc)]    
+    df_idx = [str(x) for x in range(10)]    
     
     sub_mfcc_df = pd.concat(sub_mfcc_df)
     
@@ -242,7 +165,7 @@ for i in tqdm(mfcc_file_path):
     
     mfcc_stat_df['Gender'] = gender
     
-    new_file_name = file_name[0 : -4] + '_5_sec_Chunks' + '.csv'
+    new_file_name = file_name[0 : -4] + '_100_random_chunk_stats' + '.csv'
     
     new_file_path = os.path.join(test_dir , new_file_name)
     
